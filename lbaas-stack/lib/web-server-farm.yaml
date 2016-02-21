@@ -1,0 +1,50 @@
+heat_template_version: 2015-04-30
+
+description: awesome load-balancer config
+
+parameters:
+  instance-base-name:
+    type: string
+    label: instance-name
+    description: This is the instance's base name. Will append instance number to it
+    constraints:
+      - allowed_pattern: "[A-Z-]+" 
+        description: Only Uppercase instance names are allowed
+  instance-network-name:
+    type: string
+    label: instance-network-name
+    description: Name of network which will be created for instances
+    default: private
+    constraints:
+      - allowed_pattern: "[a-zA-Z-]+"
+        description: Only uppercase letters are allowed
+  instance-key-pair-name:
+    type: string
+    label: instance-key-pair-name
+    description: name of instance key-pair
+    default: mykey
+  count:
+    type: number
+    label: instance-count
+    description: count of webservers
+  volume-size:
+    type: number
+    label: volume-size
+    description: size of intance volumes
+    default: 2
+
+resources:
+  server-farm:
+    type: OS::Heat::ResourceGroup
+    properties:
+      count: { get_param: count }
+      resource_def: 
+        type: OS::Nova::WebServer
+        properties:
+          name: { get_param: instance-base-name }
+          name-index: '%index%'
+          network: { get_param: instance-network-name }
+          keypair: { get_param: instance-key-pair-name }
+          volume-size: { get_param: volume-size } 
+
+outputs:

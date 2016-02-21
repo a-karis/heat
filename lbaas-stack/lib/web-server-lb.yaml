@@ -1,0 +1,33 @@
+heat_template_version: 2015-04-30
+
+description: Create load-balancer for web servers
+
+parameters:
+
+resources:
+  port:
+    type: OS::Neutron::Port
+    properties:
+      network_id: { get_resource: network-id }
+      fixed_ips:
+        - subnet_id: { get_resource: subnet-id }
+
+  pool:
+    type: OS::Neutron::Pool
+    properties:
+      name: { get_param: name }
+      lb_method: ROUND_ROBIN
+      monitors: { get_resource: monitor }
+      protocol: HTTP
+      subnet-id: { get_param: subnet-id }
+      vip: 
+        name: vip
+        protocol_port: 80
+        
+  loadbalancer:
+    type: OS::Neutron::LoadBalancer
+    properties:
+      pool_id: { get_resource: pool }
+      protocol_port: 80
+
+outputs:

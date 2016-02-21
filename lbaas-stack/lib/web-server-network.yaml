@@ -1,0 +1,68 @@
+heat_template_version: 2015-04-30
+
+description: >
+  Network for webserverfarm
+
+parameters:
+  name: 
+    type: string
+    label: network-name
+    description: Name of network for webserver farm
+    constraints:
+      - allowed_pattern: '[A-Z-]+'
+        description: only uppercase for network name
+      - length: { min: 3, max: 20 }
+        description: 3 to 20 characters for network name
+  cidr:
+    type: string
+    label: network-subnet
+    description: IPv4 subnet
+    constraints:
+      - allowed_pattern: '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/[0-9]{1,2}'
+        description: needs to be a valid subnet
+  public-net:
+    type: string
+    label: public-network
+    description: name of public network
+    default: public
+
+resources:
+  network:
+    type: OS::Neutron::Net
+    properties:
+      name: { get_param: name }
+  subnet:
+    type: OS::Neutron::Subnet
+    depends_on: network
+    properties:
+      name: { list_join: ['-', [ { get_param: name }, 'SUBNET' ]] }
+      cidr: { get_param: cidr }
+      network_id: { get_resource: network }
+  router:
+    type: OS::Neutron::Router
+    properties:
+      name: { list_join: ['-', [{ get_param: name }, 'ROUTER' ]] } 
+  router-interface:
+    type: OS::Neutron::RouterInterface
+    depends_on:
+      - subnet
+      - router
+    properties:
+      router_id: { get_resource: router }
+      subnet_id: { get_resource: subnet }
+  router-gateway:
+    type: OS::Neutron::RouterGateway
+    depends_on: router
+    properties:
+      router_id: { get_resource: router } 
+      network: { get_param: public-net }
+
+outputs:
+  network-id: 
+    value: { get_resource: network }
+  network-name:
+    value: { get_attr: [network, name] }
+  subnet-id: 
+    value: { get_resource: subnet }
+  router-id: 
+    value: { get_resource: router }

@@ -1,0 +1,11 @@
+resource_registry:
+  OS::Nova::WebServer: ../lib/web-server.yaml
+  OS::Nova::WebServerFarm: ../lib/web-server-farm.yaml
+  OS::Neutron::WebServerNetwork: ../lib/web-server-network.yaml
+  OS::Cinder::WebServerVolume: ../lib/web-server-volume.yaml
+
+parameters:
+  web-server-network-name: WEBSERVERFARM
+  web-server-name: WEBSERVER
+  web-server-network-cidr: 10.17.28.0/25
+  web-server-volume-size: 3

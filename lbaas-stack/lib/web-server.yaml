@@ -1,0 +1,87 @@
+heat_template_version: 2015-04-30
+
+description: Web Server
+
+parameters:
+  name:
+    type: string
+    label: server-name
+    description: server's name
+  name-index:
+    type: string
+    label: index-number
+    description: index as an offset
+    default: '1'
+  flavor:
+    type: string
+    label: server-flavor
+    description: server's flavor
+    default: m1.web
+    constraints:
+      - allowed_values:
+        - m1.web
+        - m1.small
+        description: Only m1.tiny and m1.supertiny are allowed
+  network:
+    type: string
+    label: server-network
+    description:
+    default: private
+  keypair:
+    type: string
+    label: keypair
+    description: Server's keypair
+    default: keypair
+  image:
+    type: string
+    label: server-image
+    description: Server's image
+    default: web
+  volume-size:
+    type: number
+    label: volume-size
+    description: size of attached volume
+    default: 2
+
+resources:
+  web-server:
+    type: OS::Nova::Server
+    properties: 
+      name: { list_join: [ '-', [ { get_param: name }, { get_param: name-index } ] ] }
+      image: { get_param: image }
+      key_name: { get_param: keypair }
+      flavor: { get_param: flavor }
+      networks:
+       - network: { get_param: network }
+      user_data:
+        str_replace:
+          template: |
+            #!/bin/bash
+            /bin/echo "$web-server-name" > /var/www/html/index.html
+          params:
+            $web-server-name: { list_join: ['-', [ { get_param: name }, { get_param: name-index } ] ] }
+      user_data_format: RAW
+  web-server-volume:
+    type: OS::Cinder::WebServerVolume
+    depends_on: web-server
+    properties:
+      size: { get_param: volume-size }
+      name: { list_join: ['-', [ { get_param: name }, { get_param: name-index }, 'VOLUME' ] ] }
+      server_id: { get_resource: web-server }
+  floating-ip:
+    type: OS::Nova::FloatingIP
+    depends_on: web-server
+  floating-ip-association:
+    type: OS::Nova::FloatingIPAssociation
+    depends_on: floating-ip
+    properties:
+      server_id: { get_resource: web-server }
+      floating_ip: { get_resource: floating-ip }
+
+outputs:
+  web-server: 
+    description: A dict of all server details as returned by the API.
+    value: {get_attr: [web-server, "show"] }
+  floating-ip:
+    description: Floating IP 
+    value: { get_attr: [floating-ip,"ip"] }

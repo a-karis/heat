@@ -1,0 +1,38 @@
+heat_template_version: 2015-04-30
+
+#  OS::Nova::WebServer: ../lib/web-server.yaml
+#  OS::Nova::WebServerFarm: ../lib/web-server-farm.yaml
+#  OS::Neutron::WebServerNetwork: ../lib/web-server-network.yaml
+
+description: >
+  Spawn a whole web application stack and resize on demand
+
+parameters:
+  web-server-network-name:
+    type: string
+  web-server-network-cidr:
+    type: string
+  web-server-name:
+    type: string
+  web-server-count:
+    type: number
+  web-server-volume-size:
+    type: number
+    default: 2
+
+resources:
+  network:
+    type: OS::Neutron::WebServerNetwork
+    properties:
+      name: { get_param: web-server-network-name }
+      cidr: { get_param: web-server-network-cidr }
+  server-farm:
+    type: OS::Nova::WebServerFarm
+    depends_on: network
+    properties:
+      count: { get_param: web-server-count } 
+      instance-base-name: { get_param: web-server-name }
+      instance-network-name: { get_attr: [network,network-name] }
+      volume-size: {  get_param: web-server-volume-size }
+
+outputs:

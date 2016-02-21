@@ -1,0 +1,26 @@
+heat_template_version: 2015-04-30
+
+description: Create volume and attach it to webserver
+
+parameters:
+  size:
+    type: number
+    default: 2
+  name:
+    type: string
+  server_id:
+    type: string
+
+resources:
+  volume:
+    type: OS::Cinder::Volume
+    properties:
+      name: { get_param: name }
+      size: { get_param: size }
+  volume-attachment:
+    type: OS::Cinder::VolumeAttachment
+    properties:
+      volume_id: { get_resource: volume }
+      instance_uuid: { get_param: server_id }
+
+outputs:

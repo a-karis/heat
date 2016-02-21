@@ -1,0 +1,29 @@
+                                                                      
+                                                                          
+                                           LLLLLLLLLLLLLLLL                  
+      nnnnnnnnnnnnnnnnnnnn                 L LOADBALANCER L                  
+      n    PUBLIC_NET    n                 L              L                  
+      n                  n                 LLLLLLLLLLLLLLLL                  
+      nnnnnnnnnnnnnnnnnnnn                       |                        
+                |                                |                        
+                |                                |                        
+                |                                |                        
+          rrrrrrrrrrrrrrrrrrr          nnnnnnnnnnnnnnnnnnnnn              
+          r     LB_ROUTER   r__________n     LB_NET        n              
+          r                 r          n                   n              
+          rrrrrrrrrrrrrrrrrrr          nnnnnnnnnnnnnnnnnnnnn              
+                                            |           |                 
+                                            |           |                 
+                                            |           |                 
+                                            |           |                 
+                                            |           |                 
+                              ssssssssssssssssss   ssssssssssssssssss     
+                              s   SERVER_1     s   s   SERVER_2     s     
+                              s                s   s                s     
+                              ssssssssssssssssss   ssssssssssssssssss     
+                                       |                   |              
+                                vvvvvvvvvvvvvvv       vvvvvvvvvvvvvv           
+                                v   VOLUME_1  v       v  VOLUME_2  v           
+                                v             v       v            v     
+                                vvvvvvvvvvvvvvv       vvvvvvvvvvvvvv           
+
